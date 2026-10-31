@@ -97,7 +97,13 @@ Run the application:
 ```bash
 streamlit run app.py
 ```
+## ⚠️ Limitations
 
+- The model's predictions depend on the quality and representativeness of the training data.
+- The model uses a limited set of nine customer features.
+- A prediction is an estimate, not a guarantee that a customer will leave.
+- The model may not perform equally well on data from different telecom companies or changing customer behavior.
+- Further testing and model improvement may be needed before real-world business deployment.
 ## 👨‍💻 Author
 
 **Shambel Alemu**
