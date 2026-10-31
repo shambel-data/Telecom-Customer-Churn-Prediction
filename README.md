@@ -112,6 +112,17 @@ streamlit run app.py
 - Add interactive visualizations to explore customer churn patterns.
 - Develop a customer churn monitoring dashboard.
 - Test the model using additional and more recent telecom datasets.
+- ## 🤖 Model Information
+
+- **Selected Algorithm:** Random Forest Classifier
+- **Learning Type:** Supervised Machine Learning
+- **Problem Type:** Binary Classification
+- **Prediction Target:** Customer Churn
+- **Number of Input Features:** 9
+- **Model Serialization:** Joblib
+- **Deployment Framework:** Streamlit
+
+The model predicts whether a telecom customer is likely to leave the company (Churn = 1) or remain with the company (Churn = 0).
 ## 👨‍💻 Author
 
 **Shambel Alemu**
