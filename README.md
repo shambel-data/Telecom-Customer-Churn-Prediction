@@ -43,7 +43,15 @@ The following algorithms were evaluated:
 | Gradient Boosting | 94.45% | 77.84% |
 
 Random Forest achieved the highest accuracy and F1-score among the evaluated models.
+## 🔍 Key Findings
 
+- Random Forest achieved the highest accuracy (94.75%) among the four evaluated models.
+- Random Forest also achieved the highest F1-score (79.04%).
+- Gradient Boosting performed competitively, with 94.45% accuracy and a 77.84% F1-score.
+- Logistic Regression had the lowest F1-score (20.97%), showing weaker performance in identifying customers likely to churn.
+- The selected model can estimate the probability that a customer will leave the telecom company.
+
+These findings demonstrate how machine learning can support customer retention strategies by identifying customers who may be at risk of leaving.
 ## 🔍 Application Features
 
 - Customer information input form
