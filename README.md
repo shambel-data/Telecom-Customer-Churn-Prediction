@@ -104,6 +104,14 @@ streamlit run app.py
 - A prediction is an estimate, not a guarantee that a customer will leave.
 - The model may not perform equally well on data from different telecom companies or changing customer behavior.
 - Further testing and model improvement may be needed before real-world business deployment.
+- ## 🚀 Future Improvements
+
+- Experiment with additional machine learning algorithms.
+- Perform hyperparameter tuning to improve model performance.
+- Improve churn detection by focusing on recall and F1-score.
+- Add interactive visualizations to explore customer churn patterns.
+- Develop a customer churn monitoring dashboard.
+- Test the model using additional and more recent telecom datasets.
 ## 👨‍💻 Author
 
 **Shambel Alemu**
