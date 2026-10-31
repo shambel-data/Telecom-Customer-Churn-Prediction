@@ -99,3 +99,44 @@ GitHub: [shambel-data](https://github.com/shambel-data)
 ---
 
 *This project demonstrates the application of machine learning to customer churn prediction and interactive web application deployment.*
+
+
+## 🔬 Methodology
+
+The project follows a machine learning workflow to predict customer churn.
+
+### 1. Data Preparation
+- Prepared the telecom customer dataset for machine learning.
+- Selected nine relevant customer features.
+- Encoded categorical variables (`International plan` and `Voice mail plan`) into numerical values.
+
+### 2. Train-Test Splitting
+- Divided the dataset into training and testing sets.
+- Training samples: 2,666
+- Testing samples: 667
+
+### 3. Model Training
+Four machine learning algorithms were trained and evaluated:
+
+- Logistic Regression
+- Decision Tree
+- Random Forest
+- Gradient Boosting
+
+### 4. Model Evaluation
+The models were compared using:
+- Accuracy
+- Precision
+- Recall
+- F1-score
+
+### 5. Model Selection
+Random Forest was selected because it achieved the best overall performance among the evaluated algorithms, with:
+
+- Accuracy: 94.75%
+- F1-score: 79.04%
+
+### 6. Model Deployment
+The trained Random Forest model was saved using Joblib and integrated into a Streamlit web application.
+
+Users can enter customer information and receive a churn prediction with an estimated probability.
