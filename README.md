@@ -4,7 +4,7 @@ A Machine Learning application that predicts whether a telecom customer is likel
 
 ## 🚀 Live Application
 
-[Open the Streamlit App]([PASTE_YOUR_STREAMLIT_APP_LINK_HERE](https://telecom-customer-churn-prediction-yyyvo55ut25bskme3btzsr.streamlit.app/))
+[Open the Streamlit App]([PASTE_YOUR_STREAMLIT_APP_LINK_HERE](https://telecom-customer-churn-prediction-yyyvo55ut25bskme3btzsr.streamlit.app))
 
 ## 🎯 Project Objective
 
