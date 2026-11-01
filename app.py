@@ -1,3 +1,4 @@
+
 import streamlit as st
 import joblib
 import pandas as pd
@@ -9,16 +10,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Load trained model
 # Load improved trained model
-
 @st.cache_resource
 def load_model():
-
     old_bundle = joblib.load("churn_model.joblib")
-
     improved_model = joblib.load("improved_random_forest.pkl")
-
     threshold = joblib.load("churn_threshold.pkl")
 
     return (
@@ -29,6 +25,7 @@ def load_model():
     )
 
 model, threshold, feature_names, categorical_mapping = load_model()
+
 # Application title
 st.title("📊 Telecom Customer Churn Prediction")
 st.write("Predict whether a telecom customer is likely to leave the company.")
@@ -58,6 +55,7 @@ with st.form("customer_form"):
 
     predict_button = st.form_submit_button("Predict Customer Churn")
 
+# Prediction section
 if predict_button:
 
     customer_data = {
@@ -74,19 +72,15 @@ if predict_button:
 
     input_data = pd.DataFrame([customer_data], columns=feature_names)
 
-    prediction = model.predict(input_data)[0]
+    # Predict churn probability
     probabilities = model.predict_proba(input_data)[0]
 
     churn_probability = probabilities[list(model.classes_).index(1)]
-# Predict churn probability
 
-probabilities = model.predict_proba(input_data)[0]
+    # Apply selected threshold
+    prediction = int(churn_probability >= threshold)
 
-churn_probability = probabilities[list(model.classes_).index(1)]
-
-# Apply selected threshold
-
-prediction = int(churn_probability >= threshold)
+    # Display prediction result
     st.divider()
     st.subheader("Prediction Result")
 
