@@ -10,16 +10,25 @@ st.set_page_config(
 )
 
 # Load trained model
+# Load improved trained model
+
 @st.cache_resource
 def load_model():
-    return joblib.load("churn_model.joblib")
 
-bundle = load_model()
+    old_bundle = joblib.load("churn_model.joblib")
 
-model = bundle["model"]
-feature_names = bundle["feature_names"]
-categorical_mapping = bundle["categorical_mapping"]
+    improved_model = joblib.load("improved_random_forest.pkl")
 
+    threshold = joblib.load("churn_threshold.pkl")
+
+    return (
+        improved_model,
+        threshold,
+        old_bundle["feature_names"],
+        old_bundle["categorical_mapping"]
+    )
+
+model, threshold, feature_names, categorical_mapping = load_model()
 # Application title
 st.title("📊 Telecom Customer Churn Prediction")
 st.write("Predict whether a telecom customer is likely to leave the company.")
@@ -69,7 +78,15 @@ if predict_button:
     probabilities = model.predict_proba(input_data)[0]
 
     churn_probability = probabilities[list(model.classes_).index(1)]
+# Predict churn probability
 
+probabilities = model.predict_proba(input_data)[0]
+
+churn_probability = probabilities[list(model.classes_).index(1)]
+
+# Apply selected threshold
+
+prediction = int(churn_probability >= threshold)
     st.divider()
     st.subheader("Prediction Result")
 
