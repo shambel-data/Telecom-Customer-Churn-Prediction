@@ -81,13 +81,4 @@ if predict_button:
 
     churn_probability = probabilities[list(model.classes_).index(1)]
 
-    st.divider()
-    st.subheader("Prediction Result")
-
-    if prediction == 1:
-        st.error("⚠️ This customer is likely to churn.")
-    else:
-        st.success("✅ This customer is likely to stay.")
-
-    st.metric("Churn Probability", f"{churn_probability * 100:.2f}%")
-    st.progress(float(churn_probability))
+    
