@@ -24,12 +24,7 @@ categorical_mapping = bundle["categorical_mapping"]
 # Application title
 st.title("📊 Telecom Customer Churn Prediction")
 
-st.write(
-    "An intelligent machine learning application "
-    "for predicting telecom customer churn."
-)
 
-st.divider()
 
 # Dashboard metrics
 col1, col2, col3 = st.columns(3)
