@@ -67,8 +67,8 @@ with st.form("customer_form"):
         customer_service_calls = st.number_input("Customer Service Calls", min_value=0, value=1)
 
     predict_button = st.form_submit_button("Predict Customer Churn")
-
-if predict_button:
+    
+    if predict_button:
 
     customer_data = {
         "Account length": account_length,
