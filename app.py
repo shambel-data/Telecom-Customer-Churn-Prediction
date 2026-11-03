@@ -21,13 +21,29 @@ feature_names = bundle["feature_names"]
 categorical_mapping = bundle["categorical_mapping"]
 
 # Application title
+# Application title
 st.title("📊 Telecom Customer Churn Prediction")
-st.write("Predict whether a telecom customer is likely to leave the company.")
+
+st.write(
+    "An intelligent machine learning application "
+    "for predicting telecom customer churn."
+)
 
 st.divider()
 
-st.subheader("Enter Customer Information")
+# Dashboard metrics
+col1, col2, col3 = st.columns(3)
 
+with col1:
+    st.metric("Total Features", "9")
+
+with col2:
+    st.metric("Selected Model", "Random Forest")
+
+with col3:
+    st.metric("Test Accuracy", "94.75%")
+
+st.divider()
 with st.form("customer_form"):
 
     col1, col2, col3 = st.columns(3)
