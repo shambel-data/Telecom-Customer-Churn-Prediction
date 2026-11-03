@@ -81,13 +81,38 @@ if predict_button:
 
     churn_probability = probabilities[list(model.classes_).index(1)]
 
-    st.divider()
-    st.subheader("Prediction Result")
+   st.divider()
+st.subheader("📊 Prediction Result")
 
-    if prediction == 1:
-        st.error("⚠️ This customer is likely to churn.")
-    else:
-        st.success("✅ This customer is likely to stay.")
+# Customer prediction
+if prediction == 1:
+    st.error("⚠️ This customer is likely to churn.")
+else:
+    st.success("✅ This customer is likely to stay.")
 
-    st.metric("Churn Probability", f"{churn_probability * 100:.2f}%")
-    st.progress(float(churn_probability))
+# Risk classification
+if churn_probability < 0.30:
+    risk_level = "Low Risk"
+    st.success("🟢 Low customer churn risk")
+
+elif churn_probability < 0.70:
+    risk_level = "Medium Risk"
+    st.warning("🟡 Medium customer churn risk")
+
+else:
+    risk_level = "High Risk"
+    st.error("🔴 High customer churn risk")
+
+# Display metrics
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("Churn Probability",
+              f"{churn_probability * 100:.2f}%")
+
+with col2:
+    st.metric("Customer Risk Level", risk_level)
+
+# Probability visualization
+st.write("### Churn Probability Indicator")
+st.progress(float(churn_probability))
