@@ -81,12 +81,12 @@ if predict_button:
         "Customer service calls": customer_service_calls
     }
 
-    input_data = pd.DataFrame([customer_data], columns=feature_names)
+     input_data = pd.DataFrame([customer_data], columns=feature_names)
 
-    prediction = model.predict(input_data)[0]
-    probabilities = model.predict_proba(input_data)[0]
+     prediction = model.predict(input_data)[0]
+     probabilities = model.predict_proba(input_data)[0]
 
-    churn_probability = probabilities[list(model.classes_).index(1)]
+     churn_probability = probabilities[list(model.classes_).index(1)]
 
 NameError: This app has encountered an error. The original error message is redacted to prevent data leaks. Full error details have been recorded in the logs (if you're on Streamlit Cloud, click on 'Manage app' in the lower right of your app).
 Traceback:
