@@ -81,7 +81,7 @@ if predict_button:
 
     churn_probability = probabilities[list(model.classes_).index(1)]
 
-   st.divider()
+st.divider()
 st.subheader("📊 Prediction Result")
 
 # Customer prediction
