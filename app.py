@@ -86,5 +86,3 @@ if predict_button:
     probabilities = model.predict_proba(input_data)[0]
 
     churn_probability = probabilities[list(model.classes_).index(1)]
-
-
