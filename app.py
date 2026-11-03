@@ -62,6 +62,9 @@ with st.form("customer_form"):
     predict_button = st.form_submit_button("Predict Customer Churn")
 
 # Prediction section
+if predict_button:
+
+    # Put the corrected prediction section here
 prediction = model.predict(input_data)[0]
 customer_data = {
     "Account length": account_length,
