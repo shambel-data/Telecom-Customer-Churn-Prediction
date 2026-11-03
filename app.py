@@ -80,12 +80,11 @@ if predict_button:
         "Total intl charge": total_intl_charge,
         "Customer service calls": customer_service_calls
     }
+    input_data = pd.DataFrame([customer_data], columns=feature_names)
 
-     input_data = pd.DataFrame([customer_data], columns=feature_names)
+    prediction = model.predict(input_data)[0]
+    probabilities = model.predict_proba(input_data)[0]
 
-     prediction = model.predict(input_data)[0]
-     probabilities = model.predict_proba(input_data)[0]
-
-     churn_probability = probabilities[list(model.classes_).index(1)]
+    churn_probability = probabilities[list(model.classes_).index(1)]
 
 
