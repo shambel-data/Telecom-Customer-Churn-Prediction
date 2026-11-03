@@ -68,7 +68,7 @@ with st.form("customer_form"):
 
     predict_button = st.form_submit_button("Predict Customer Churn")
     
-    if predict_button:
+if predict_button:
 
     customer_data = {
         "Account length": account_length,
