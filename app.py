@@ -12,19 +12,18 @@ st.set_page_config(
 
 # Load improved trained model
 @st.cache_resource
+@st.cache_resource
 def load_model():
-    old_bundle = joblib.load("churn_model.joblib")
-    improved_model = joblib.load("improved_random_forest.pkl")
-    threshold = joblib.load("churn_threshold.pkl")
+    bundle = joblib.load("churn_model.joblib")
 
-    return (
-        improved_model,
-        threshold,
-        old_bundle["feature_names"],
-        old_bundle["categorical_mapping"]
-    )
+    model = bundle["model"]
+    feature_names = bundle["feature_names"]
+    categorical_mapping = bundle["categorical_mapping"]
 
-model, threshold, feature_names, categorical_mapping = load_model()
+    return model, feature_names, categorical_mapping
+
+
+model, feature_names, categorical_mapping = load_model()
 
 # Application title
 st.title("📊 Telecom Customer Churn Prediction")
@@ -56,22 +55,27 @@ with st.form("customer_form"):
     predict_button = st.form_submit_button("Predict Customer Churn")
 
 # Prediction section
-if predict_button:
+prediction = model.predict(input_data)[0]
 
-    customer_data = {
-        "Account length": account_length,
-        "International plan": categorical_mapping["International plan"][international_plan],
-        "Voice mail plan": categorical_mapping["Voice mail plan"][voice_mail_plan],
-        "Number vmail messages": number_vmail_messages,
-        "Total day charge": total_day_charge,
-        "Total eve charge": total_eve_charge,
-        "Total night charge": total_night_charge,
-        "Total intl charge": total_intl_charge,
-        "Customer service calls": customer_service_calls
-    }
+st.divider()
+st.subheader("Prediction Result")
 
-    input_data = pd.DataFrame([customer_data], columns=feature_names)
+if prediction == 1:
+    st.error("⚠️ This customer is likely to churn.")
+else:
+    st.success("✅ This customer is likely to stay.")
 
+if hasattr(model, "predict_proba"):
+    probabilities = model.predict_proba(input_data)[0]
+    churn_index = list(model.classes_).index(1)
+    churn_probability = probabilities[churn_index]
+
+    st.metric(
+        "Churn Probability",
+        f"{churn_probability * 100:.2f}%"
+    )
+
+    st.progress(float(churn_probability))
     # Predict churn probability
     probabilities = model.predict_proba(input_data)[0]
 
