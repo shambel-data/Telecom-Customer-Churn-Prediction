@@ -64,7 +64,7 @@ with st.form("customer_form"):
 # Prediction section
 
     # Put the corrected prediction section here
-prediction = model.predict(input_data)[0]
+prediction = model.predict(customer_data)[0]
 customer_data = {
     "Account length": account_length,
     "International plan": categorical_mapping["International plan"][international_plan],
