@@ -19,7 +19,15 @@ bundle = load_model()
 model = bundle["model"]
 feature_names = bundle["feature_names"]
 categorical_mapping = bundle["categorical_mapping"]
+# Feature importance
+feature_importance = pd.DataFrame({
+    "Feature": feature_names,
+    "Importance": model.feature_importances_
+})
 
+feature_importance = feature_importance.sort_values(
+    by="Importance", ascending=True
+)
 # Application title
 # Application title
 st.title("📊 Telecom Customer Churn Prediction")
