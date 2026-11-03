@@ -1,4 +1,4 @@
-
+from pathlib import Path
 import streamlit as st
 import joblib
 import pandas as pd
@@ -12,9 +12,16 @@ st.set_page_config(
 
 # Load improved trained model
 @st.cache_resource
-@st.cache_resource
 def load_model():
-    bundle = joblib.load("churn_model.joblib")
+    model_path = Path(__file__).parent / "churn_model.joblib"
+
+    if not model_path.exists():
+        st.error(f"Model file not found: {model_path}")
+        st.write("Files available in the app directory:")
+        st.write([file.name for file in Path(__file__).parent.iterdir()])
+        st.stop()
+
+    bundle = joblib.load(model_path)
 
     model = bundle["model"]
     feature_names = bundle["feature_names"]
