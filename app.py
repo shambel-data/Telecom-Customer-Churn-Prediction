@@ -1,4 +1,3 @@
-from pathlib import Path
 import streamlit as st
 import joblib
 import pandas as pd
@@ -10,27 +9,16 @@ st.set_page_config(
     layout="wide"
 )
 
-# Load improved trained model
+# Load trained model
 @st.cache_resource
 def load_model():
-    model_path = Path(__file__).parent / "churn_model.joblib"
+    return joblib.load("churn_model.joblib")
 
-    if not model_path.exists():
-        st.error(f"Model file not found: {model_path}")
-        st.write("Files available in the app directory:")
-        st.write([file.name for file in Path(__file__).parent.iterdir()])
-        st.stop()
+bundle = load_model()
 
-    bundle = joblib.load(model_path)
-
-    model = bundle["model"]
-    feature_names = bundle["feature_names"]
-    categorical_mapping = bundle["categorical_mapping"]
-
-    return model, feature_names, categorical_mapping
-
-
-model, feature_names, categorical_mapping = load_model()
+model = bundle["model"]
+feature_names = bundle["feature_names"]
+categorical_mapping = bundle["categorical_mapping"]
 
 # Application title
 st.title("📊 Telecom Customer Churn Prediction")
@@ -61,51 +49,27 @@ with st.form("customer_form"):
 
     predict_button = st.form_submit_button("Predict Customer Churn")
 
-# Prediction section
+if predict_button:
 
-    # Put the corrected prediction section here
-prediction = model.predict(customer_data)[0]
-customer_data = {
-    "Account length": account_length,
-    "International plan": categorical_mapping["International plan"][international_plan],
-    "Voice mail plan": categorical_mapping["Voice mail plan"][voice_mail_plan],
-    "Number vmail messages": number_vmail_messages,
-    "Total day charge": total_day_charge,
-    "Total eve charge": total_eve_charge,
-    "Total night charge": total_night_charge,
-    "Total intl charge": total_intl_charge,
-    "Customer service calls": customer_service_calls
-}
+    customer_data = {
+        "Account length": account_length,
+        "International plan": categorical_mapping["International plan"][international_plan],
+        "Voice mail plan": categorical_mapping["Voice mail plan"][voice_mail_plan],
+        "Number vmail messages": number_vmail_messages,
+        "Total day charge": total_day_charge,
+        "Total eve charge": total_eve_charge,
+        "Total night charge": total_night_charge,
+        "Total intl charge": total_intl_charge,
+        "Customer service calls": customer_service_calls
+    }
 
-input_data = pd.DataFrame([customer_data], columns=feature_names)
-st.divider()
-st.subheader("Prediction Result")
+    input_data = pd.DataFrame([customer_data], columns=feature_names)
 
-if prediction == 1:
-    st.error("⚠️ This customer is likely to churn.")
-else:
-    st.success("✅ This customer is likely to stay.")
-
-if hasattr(model, "predict_proba"):
-    probabilities = model.predict_proba(input_data)[0]
-    churn_index = list(model.classes_).index(1)
-    churn_probability = probabilities[churn_index]
-
-    st.metric(
-        "Churn Probability",
-        f"{churn_probability * 100:.2f}%"
-    )
-
-    st.progress(float(churn_probability))
-    # Predict churn probability
+    prediction = model.predict(input_data)[0]
     probabilities = model.predict_proba(input_data)[0]
 
     churn_probability = probabilities[list(model.classes_).index(1)]
 
-    # Apply selected threshold
-    prediction = int(churn_probability >= threshold)
-
-    # Display prediction result
     st.divider()
     st.subheader("Prediction Result")
 
