@@ -63,7 +63,19 @@ with st.form("customer_form"):
 
 # Prediction section
 prediction = model.predict(input_data)[0]
+customer_data = {
+    "Account length": account_length,
+    "International plan": categorical_mapping["International plan"][international_plan],
+    "Voice mail plan": categorical_mapping["Voice mail plan"][voice_mail_plan],
+    "Number vmail messages": number_vmail_messages,
+    "Total day charge": total_day_charge,
+    "Total eve charge": total_eve_charge,
+    "Total night charge": total_night_charge,
+    "Total intl charge": total_intl_charge,
+    "Customer service calls": customer_service_calls
+}
 
+input_data = pd.DataFrame([customer_data], columns=feature_names)
 st.divider()
 st.subheader("Prediction Result")
 
