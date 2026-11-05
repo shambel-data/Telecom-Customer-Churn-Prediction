@@ -15,7 +15,7 @@ st.set_page_config(
 )
 
 # ==================================================
-# 2. LOAD TRAINED MODEL
+# 2. LOAD OPTIMIZED MODEL AND THRESHOLD
 # ==================================================
 
 @st.cache_resource
@@ -23,15 +23,31 @@ def load_model():
     return joblib.load("churn_model.joblib")
 
 
+@st.cache_resource
+def load_threshold():
+    return joblib.load("churn_threshold.pkl")
+
+
 try:
     bundle = load_model()
+    threshold = float(load_threshold())
 
     model = bundle["model"]
     feature_names = list(bundle["feature_names"])
     categorical_mapping = bundle["categorical_mapping"]
 
 except Exception as e:
-    st.error(f"Unable to load the trained model: {e}")
+    st.error(f"Unable to load the model or threshold: {e}")
+    st.info(
+        "Ensure churn_model.joblib and churn_threshold.pkl "
+        "are available in the application directory."
+    )
+    st.stop()
+
+
+# Validate threshold
+if not 0 < threshold < 1:
+    st.error("Invalid prediction threshold.")
     st.stop()
 
 
@@ -66,9 +82,13 @@ if (
     )
     st.stop()
 
+
 if not hasattr(model, "predict_proba"):
-    st.error("The loaded model does not support probability prediction.")
+    st.error(
+        "The loaded model does not support probability prediction."
+    )
     st.stop()
+
 
 if 1 not in list(model.classes_):
     st.error("The model does not contain the churn class (1).")
@@ -81,7 +101,7 @@ if 1 not in list(model.classes_):
 
 def classify_risk(probability):
 
-    if probability < 0.30:
+    if probability < threshold:
         return "Low"
 
     elif probability < 0.70:
@@ -94,14 +114,14 @@ def prepare_model_input(data):
 
     model_input = data.copy()
 
-    # Convert categorical Yes/No values to 0/1.
+    # Convert categorical Yes/No values to 0/1
     for col in categorical_features:
 
         model_input[col] = model_input[col].map(
             categorical_mapping[col]
         )
 
-    # Ensure exact feature order.
+    # Ensure the exact feature order used during training
     return model_input[feature_names]
 
 
@@ -109,13 +129,16 @@ def make_predictions(data):
 
     model_input = prepare_model_input(data)
 
-    predictions = model.predict(model_input)
-
     probabilities = model.predict_proba(model_input)
 
     churn_index = list(model.classes_).index(1)
 
     churn_probabilities = probabilities[:, churn_index]
+
+    # Apply optimized threshold
+    predictions = (
+        churn_probabilities >= threshold
+    ).astype(int)
 
     return predictions, churn_probabilities
 
@@ -139,13 +162,18 @@ st.divider()
 # 6. DASHBOARD METRICS
 # ==================================================
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 col1.metric("Total Features", "9")
 
 col2.metric("Selected Algorithm", "Random Forest")
 
-col3.metric("Test Accuracy", "94.75%")
+col3.metric("Test Accuracy", "92.35%")
+
+col4.metric(
+    "Optimized Threshold",
+    f"{threshold:.2f}"
+)
 
 st.divider()
 
@@ -159,7 +187,7 @@ with st.sidebar:
     st.title("📊 About the Project")
 
     st.write(
-        "This application uses a trained Random Forest "
+        "This application uses an optimized Random Forest "
         "classification model to predict telecom customer churn."
     )
 
@@ -167,20 +195,33 @@ with st.sidebar:
 
     st.subheader("Model Information")
 
-    st.write("Algorithm: Random Forest")
+    st.write("Algorithm: Optimized Random Forest")
     st.write("Problem: Binary Classification")
     st.write("Class 0: Customer stays")
     st.write("Class 1: Customer churns")
+
+    st.write(
+        f"Prediction threshold: {threshold:.2f}"
+    )
 
     st.divider()
 
     st.subheader("Risk Categories")
 
-    st.write("🟢 Low: Below 30%")
-    st.write("🟡 Medium: 30% to below 70%")
+    st.write(
+        f"🟢 Low: Below {threshold * 100:.0f}%"
+    )
+
+    st.write(
+        f"🟡 Medium: {threshold * 100:.0f}% to below 70%"
+    )
+
     st.write("🔴 High: 70% or above")
 
-    st.caption("Risk thresholds are illustrative.")
+    st.caption(
+        "Risk categories are illustrative and "
+        "do not represent guaranteed customer behavior."
+    )
 
 
 # ==================================================
@@ -299,73 +340,84 @@ with individual_tab:
 
         }])
 
-        prediction, churn_probability = make_predictions(
-            customer_data
-        )
+        try:
 
-        prediction = int(prediction[0])
+            predictions, churn_probabilities = make_predictions(
+                customer_data
+            )
 
-        churn_probability = float(churn_probability[0])
+            prediction = int(predictions[0])
 
-        st.divider()
+            churn_probability = float(churn_probabilities[0])
 
-        st.subheader("Prediction Result")
+            st.divider()
 
-        result_col1, result_col2 = st.columns(2)
+            st.subheader("Prediction Result")
 
-        with result_col1:
+            result_col1, result_col2 = st.columns(2)
 
-            if prediction == 1:
+            with result_col1:
 
-                st.error(
-                    "⚠️ This customer is likely to churn."
+                if prediction == 1:
+
+                    st.error(
+                        "⚠️ This customer is likely to churn."
+                    )
+
+                else:
+
+                    st.success(
+                        "✅ This customer is likely to stay."
+                    )
+
+            with result_col2:
+
+                st.metric(
+                    "Churn Probability",
+                    f"{churn_probability * 100:.2f}%"
+                )
+
+            st.progress(churn_probability)
+
+            st.caption(
+                f"Prediction is based on the optimized "
+                f"threshold of {threshold:.2f}."
+            )
+
+            risk_level = classify_risk(churn_probability)
+
+            st.subheader("Customer Risk Level")
+
+            if risk_level == "High":
+
+                st.error("🔴 High Risk")
+
+                st.write(
+                    "Consider reviewing this customer's "
+                    "service experience and retention needs."
+                )
+
+            elif risk_level == "Medium":
+
+                st.warning("🟡 Medium Risk")
+
+                st.write(
+                    "Consider monitoring this customer's "
+                    "satisfaction and service usage."
                 )
 
             else:
 
-                st.success(
-                    "✅ This customer is likely to stay."
+                st.success("🟢 Low Risk")
+
+                st.write(
+                    "The model estimates a relatively low "
+                    "likelihood of churn."
                 )
 
-        with result_col2:
+        except Exception as e:
 
-            st.metric(
-                "Churn Probability",
-                f"{churn_probability * 100:.2f}%"
-            )
-
-        st.progress(churn_probability)
-
-        risk_level = classify_risk(churn_probability)
-
-        st.subheader("Customer Risk Level")
-
-        if risk_level == "High":
-
-            st.error("🔴 High Risk")
-
-            st.write(
-                "Consider reviewing this customer's "
-                "service experience and retention needs."
-            )
-
-        elif risk_level == "Medium":
-
-            st.warning("🟡 Medium Risk")
-
-            st.write(
-                "Consider monitoring this customer's "
-                "satisfaction and service usage."
-            )
-
-        else:
-
-            st.success("🟢 Low Risk")
-
-            st.write(
-                "The model estimates a relatively low "
-                "likelihood of churn."
-            )
+            st.error(f"Prediction failed: {e}")
 
 
 # ==================================================
@@ -378,7 +430,7 @@ with batch_tab:
 
     st.write(
         "Upload a CSV file containing multiple customers. "
-        "The trained Random Forest model will predict "
+        "The optimized Random Forest model will predict "
         "churn for every customer."
     )
 
@@ -386,6 +438,7 @@ with batch_tab:
         "Download the sample template first, fill it with "
         "customer information, and then upload your CSV file."
     )
+
 
     # --------------------------------------------------
     # 9. SAMPLE CSV TEMPLATE
@@ -439,6 +492,7 @@ with batch_tab:
 
     st.divider()
 
+
     # --------------------------------------------------
     # 10. CSV UPLOAD
     # --------------------------------------------------
@@ -478,12 +532,13 @@ with batch_tab:
                     use_container_width=True
                 )
 
+
                 # --------------------------------------
                 # 11. COLUMN VALIDATION
                 # --------------------------------------
 
                 missing_columns = [
-                    col for col in feature_names
+                    col for col in required_features
                     if col not in uploaded_data.columns
                 ]
 
@@ -500,7 +555,8 @@ with batch_tab:
 
                     validation_errors = []
 
-                    # Validate numeric columns.
+
+                    # Validate numeric columns
                     for col in numeric_features:
 
                         processed_data[col] = pd.to_numeric(
@@ -531,7 +587,8 @@ with batch_tab:
                                 f"{col} contains negative values."
                             )
 
-                    # Validate categorical columns.
+
+                    # Validate categorical columns
                     for col in categorical_features:
 
                         processed_data[col] = (
@@ -558,7 +615,8 @@ with batch_tab:
                                 + "."
                             )
 
-                    # Validate whole-number columns.
+
+                    # Validate whole-number columns
                     integer_features = [
                         "Account length",
                         "Number vmail messages",
@@ -578,6 +636,7 @@ with batch_tab:
                             validation_errors.append(
                                 f"{col} must contain whole numbers."
                             )
+
 
                     # ----------------------------------
                     # 12. DISPLAY VALIDATION RESULTS
@@ -599,6 +658,7 @@ with batch_tab:
                         st.success(
                             "All required customer data is valid."
                         )
+
 
                         # ----------------------------------
                         # 13. RUN BATCH PREDICTION
@@ -630,6 +690,7 @@ with batch_tab:
                                     classify_risk(float(p))
                                     for p in churn_probabilities
                                 ]
+
 
                                 # ----------------------------------
                                 # 14. SUMMARY METRICS
@@ -679,6 +740,7 @@ with batch_tab:
                                     f"{churn_rate:.2f}%"
                                 )
 
+
                                 # ----------------------------------
                                 # 15. PREDICTION RESULTS TABLE
                                 # ----------------------------------
@@ -693,6 +755,7 @@ with batch_tab:
                                     results,
                                     use_container_width=True
                                 )
+
 
                                 # ----------------------------------
                                 # 16. RISK DISTRIBUTION
@@ -724,6 +787,7 @@ with batch_tab:
                                         f"{count} customers "
                                         f"({percentage:.2f}%)"
                                     )
+
 
                                 # ----------------------------------
                                 # 17. DOWNLOAD RESULTS
@@ -824,5 +888,5 @@ st.divider()
 
 st.caption(
     "Telecom Customer Churn Prediction | "
-    "Powered by Random Forest and Streamlit"
+    "Optimized Random Forest | Streamlit"
 )
